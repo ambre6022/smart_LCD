@@ -1,0 +1,9 @@
+{
+  "media_folder": "C:\\Users\\ADI_123\\Pictures",
+  "display_time": {
+    "image": 5,
+    "video": 10
+  },
+  "play_mode": "sequential",
+  "loop": true
+}

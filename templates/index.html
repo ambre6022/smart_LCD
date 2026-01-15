@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ads Admin Panel</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🎬</span>
+                <h1>Smart Ads</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active" data-page="dashboard">Dashboard</li>
+                    <li data-page="media">Media Library</li>
+                    <li data-page="devices">Devices</li>
+                    <li data-page="schedules">Schedules</li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="content">
+            <header class="top-bar">
+                <h2 id="page-title">Dashboard</h2>
+                <div class="user-profile">
+                    <span>Admin</span>
+                </div>
+            </header>
+            
+            <section id="dashboard-page" class="page active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Media</h3>
+                        <p id="total-media">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Devices</h3>
+                        <p id="active-devices">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Storage Used</h3>
+                        <p id="storage-used">0 MB</p>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Recent Media</h3>
+                    <div id="recent-media-list" class="media-list-mini">
+                        <!-- Media items will be loaded here -->
+                    </div>
+                </div>
+            </section>
+            
+            <section id="media-page" class="page">
+                <div class="page-header">
+                    <h3>Media Library</h3>
+                    <button class="btn btn-primary" onclick="document.getElementById('file-upload').click()">Upload Media</button>
+                    <input type="file" id="file-upload" hidden onchange="handleFileUpload(event)">
+                </div>
+                <div id="media-grid" class="media-grid">
+                    <!-- Media items will be loaded here -->
+                </div>
+            </section>
+            
+            <section id="devices-page" class="page">
+                <div class="page-header">
+                    <h3>Managed Devices</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Device ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Last Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devices-list">
+                        <!-- Devices will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
