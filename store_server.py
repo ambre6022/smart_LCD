@@ -105,7 +105,12 @@ def upload_file():
         update_media_queue()
         
         # Notify all connected players
-        socketio.emit('new_media', {"filename": filename})
+        socketio.emit('new_media', {
+            "name": filename,
+            "filename": filename,
+            "type": media_type,
+            "duration": duration
+        })
         
         return jsonify({"message": "File uploaded successfully", "filename": filename}), 201
 
@@ -149,6 +154,24 @@ def heartbeat():
     conn.commit()
     conn.close()
     return jsonify({"status": "ok"}), 200
+
+@app.route('/api/play_now/<int:media_id>', methods=['POST'])
+def play_now(media_id):
+    conn = get_db_connection()
+    item = conn.execute('SELECT * FROM media WHERE id = ?', (media_id,)).fetchone()
+    conn.close()
+    
+    if item:
+        folder = 'images' if item['type'] == 'image' else 'videos'
+        media_data = {
+            "name": item['filename'],
+            "path": f"{app.config['UPLOAD_FOLDER']}/{folder}/{item['filename']}",
+            "type": item['type'],
+            "duration": item['duration']
+        }
+        socketio.emit('play_this', media_data)
+        return jsonify({"status": "ok", "message": f"Playing {item['filename']} now"}), 200
+    return jsonify({"error": "Media not found"}), 404
 
 @app.route('/uploads/<folder>/<filename>')
 def served_file(folder, filename):

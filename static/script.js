@@ -42,7 +42,10 @@ async function loadMedia() {
                 <div class="media-preview">${icon}</div>
                 <div class="media-info">
                     <h4>${item.name}</h4>
-                    <span>${(item.size / 1024).toFixed(1)} KB</span>
+                    <div class="media-actions">
+                        <span>${(item.size / 1024).toFixed(1)} KB</span>
+                        <button class="btn-small" onclick="playMedia(${item.id})">Play Now</button>
+                    </div>
                 </div>
             `;
             grid.appendChild(card);
@@ -50,6 +53,17 @@ async function loadMedia() {
 
     } catch (error) {
         console.error('Error loading media:', error);
+    }
+}
+
+async function playMedia(id) {
+    try {
+        const response = await fetch(`/api/play_now/${id}`, { method: 'POST' });
+        if (response.ok) {
+            console.log("Play command sent");
+        }
+    } catch (error) {
+        console.error('Error sending play command:', error);
     }
 }
 

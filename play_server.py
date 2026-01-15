@@ -28,6 +28,7 @@ class RaspberryMediaPlayer:
         self.play_mode = "sequential"  # sequential, random
         self.loop = True
         self.current_index = 0
+        self.force_media = None # New flag for live push
         
         # Server settings
         self.server_url = "http://localhost:5000"
@@ -106,11 +107,31 @@ class RaspberryMediaPlayer:
             
         @sio.on('new_media')
         def on_new_media(data):
-            print(f"🔔 Navin media sapdli: {data['filename']}")
-            # Trigger immediate sync
+            print(f"🔔 Live Upload: {data['filename']}")
+            # Download it immediately
+            self.download_specific_file({"name": data['filename'], "type": data['type']})
+            # Force it to play next
+            self.force_media = {
+                "name": data['filename'],
+                "path": os.path.join(self.media_folder, 'images' if data['type'] == 'image' else 'videos', data['filename']),
+                "type": data['type'],
+                "duration": data['duration']
+            }
+            # Also sync the background queue
             self.run_sync_once()
-            # Optional: Move to next media immediately to show new one
-            # pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
+            
+        @sio.on('play_this')
+        def on_play_this(data):
+            print(f"🔥 Live Push Request: {data['name']}")
+            # Ensure file is downloaded first
+            self.download_specific_file(data)
+            # Set as forced media
+            self.force_media = {
+                "name": data['name'],
+                "path": os.path.join(self.media_folder, 'images' if data['type'] == 'image' else 'videos', data['name']),
+                "type": data['type'],
+                "duration": data['duration']
+            }
             
         try:
             sio.connect(self.server_url)
@@ -118,6 +139,23 @@ class RaspberryMediaPlayer:
         except Exception as e:
             # print(f"⚠️ Socket connection failed: {e}")
             pass
+            
+    def download_specific_file(self, item):
+        """Specific file download kara play karnyapurvi"""
+        import requests
+        folder = 'images' if item['type'] == 'image' else 'videos'
+        local_path = os.path.join(self.media_folder, folder, item['name'])
+        if not os.path.exists(local_path):
+            try:
+                url = f"{self.server_url}/uploads/{folder}/{item['name']}"
+                r = requests.get(url, stream=True, timeout=5)
+                if r.status_code == 200:
+                    with open(local_path, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=8192):
+                            f.write(chunk)
+                    print(f"✅ Live Downloaded: {item['name']}")
+            except:
+                pass
 
     def run_sync_once(self):
         """Ekda sync kara"""
@@ -521,7 +559,12 @@ class RaspberryMediaPlayer:
                         print(f"🔁 Loop: {status}")
             
             # Get next media
-            media = self.get_next_media()
+            if self.force_media:
+                media = self.force_media
+                self.force_media = None # Clear after picking
+                print(f"🔥 LIVE PUSH: {media['name']}")
+            else:
+                media = self.get_next_media()
             
             if media:
                 print(f"▶️  Playing: {media['name']} ({media['type']})")
@@ -569,6 +612,10 @@ class RaspberryMediaPlayer:
         start_time = time.time()
         
         while time.time() - start_time < seconds:
+            # Check for live push interruption
+            if self.force_media:
+                return False # Interrupt current wait
+                
             # Check for events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
