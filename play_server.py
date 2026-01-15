@@ -58,6 +58,14 @@ class RaspberryMediaPlayer:
         import requests
         while True:
             try:
+                # Sync Queue File
+                q_response = requests.get(f"{self.server_url}/api/queue", timeout=10)
+                if q_response.status_code == 200:
+                    with open(self.queue_file, 'wb') as f:
+                        f.write(q_response.content)
+                    # print("📋 Queue updated from server")
+
+                # Sync Media Files
                 response = requests.get(f"{self.server_url}/api/media", timeout=10)
                 if response.status_code == 200:
                     media_list = response.json()
@@ -80,7 +88,7 @@ class RaspberryMediaPlayer:
             except Exception as e:
                 # print(f"⚠️ Sync failed: {e}")
                 pass
-            time.sleep(60)  # Every 60 seconds
+            time.sleep(10)  # Check every 10 seconds for faster sync
     
     def init_pygame_raspberry(self):
         """Raspberry Pi साठी Pygame initialize करा"""

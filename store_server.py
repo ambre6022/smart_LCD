@@ -144,6 +144,10 @@ def heartbeat():
 def served_file(folder, filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], folder), filename)
 
+@app.route('/api/queue')
+def get_queue():
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'queue'), 'media_queue.json')
+
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=5000, debug=True)
