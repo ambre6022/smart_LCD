@@ -1,0 +1,23 @@
+[
+  {
+    "name": "bird.png",
+    "path": "shared_media/images/bird.png",
+    "type": "image",
+    "duration": 5,
+    "played": false
+  },
+  {
+    "name": "pandas.jpg",
+    "path": "shared_media/images/pandas.jpg",
+    "type": "image",
+    "duration": 5,
+    "played": false
+  },
+  {
+    "name": "bhale.png",
+    "path": "shared_media/images/bhale.png",
+    "type": "image",
+    "duration": 5,
+    "played": false
+  }
+]

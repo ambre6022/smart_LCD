@@ -587,19 +587,19 @@ class RaspberryMediaPlayer:
             else:
                 # No media found
                 self.show_waiting_screen()
-                time.sleep(2)
+                if not self.wait_with_events(2):
+                    running = False
             
             # Check if we should continue
             if not self.loop and hasattr(self, 'played_count'):
                 if self.played_count >= len(self.scan_local_media()):
-                    print("🛑 Loop disabled, stopping playback")
+                    print("🛑 Loop disabled, waiting for live updates...")
                     self.show_waiting_screen()
-                    while True:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                                running = False
-                                break
-                        time.sleep(0.1)
+                    while not self.force_media: # Wait until forced media or exit
+                        if not self.wait_with_events(1):
+                            running = False
+                            break
+                    self.played_count = 0 # Reset for next cycle
             
             clock.tick(30)  # 30 FPS
         
@@ -614,7 +614,7 @@ class RaspberryMediaPlayer:
         while time.time() - start_time < seconds:
             # Check for live push interruption
             if self.force_media:
-                return False # Interrupt current wait
+                return True # Interrupt wait but continue player
                 
             # Check for events
             for event in pygame.event.get():
