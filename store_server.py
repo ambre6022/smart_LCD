@@ -30,6 +30,7 @@ def init_db():
             filename TEXT NOT NULL,
             type TEXT NOT NULL,
             size INTEGER,
+            duration INTEGER DEFAULT 5,
             upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -92,10 +93,11 @@ def upload_file():
         file.save(file_path)
         
         size = os.path.getsize(file_path)
+        duration = request.form.get('duration', 5, type=int)
         
         conn = get_db_connection()
-        conn.execute('INSERT INTO media (name, filename, type, size) VALUES (?, ?, ?, ?)',
-                     (filename, filename, media_type, size))
+        conn.execute('INSERT INTO media (name, filename, type, size, duration) VALUES (?, ?, ?, ?, ?)',
+                     (filename, filename, media_type, size, duration))
         conn.commit()
         conn.close()
         
@@ -121,6 +123,7 @@ def update_media_queue():
             "name": item['filename'],
             "path": f"{app.config['UPLOAD_FOLDER']}/{folder}/{item['filename']}",
             "type": item['type'],
+            "duration": item['duration'],
             "played": False
         })
     

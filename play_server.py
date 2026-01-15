@@ -534,8 +534,9 @@ class RaspberryMediaPlayer:
                 
                 if success:
                     # Wait for display time
-                    display_duration = self.display_time[media["type"]]
-                    self.wait_with_events(display_duration)
+                    display_duration = media.get('duration', self.display_time[media["type"]])
+                    if not self.wait_with_events(display_duration):
+                        running = False
                 else:
                     # Error, wait a bit and continue
                     self.show_error_screen(f"Failed to load: {media['name']}")

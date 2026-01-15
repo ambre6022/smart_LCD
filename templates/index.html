@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="app-container">
         <aside class="sidebar">
@@ -23,7 +25,7 @@
                 </ul>
             </nav>
         </aside>
-        
+
         <main class="content">
             <header class="top-bar">
                 <h2 id="page-title">Dashboard</h2>
@@ -31,7 +33,7 @@
                     <span>Admin</span>
                 </div>
             </header>
-            
+
             <section id="dashboard-page" class="page active">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -47,7 +49,7 @@
                         <p id="storage-used">0 MB</p>
                     </div>
                 </div>
-                
+
                 <div class="recent-activity">
                     <h3>Recent Media</h3>
                     <div id="recent-media-list" class="media-list-mini">
@@ -55,18 +57,24 @@
                     </div>
                 </div>
             </section>
-            
+
             <section id="media-page" class="page">
                 <div class="page-header">
                     <h3>Media Library</h3>
-                    <button class="btn btn-primary" onclick="document.getElementById('file-upload').click()">Upload Media</button>
+                    <div class="upload-controls">
+                        <label for="media-duration">Duration (sec):</label>
+                        <input type="number" id="media-duration" value="5" min="1"
+                            style="width: 60px; padding: 5px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card); color: white; margin-right: 10px;">
+                        <button class="btn btn-primary" onclick="document.getElementById('file-upload').click()">Upload
+                            Media</button>
+                    </div>
                     <input type="file" id="file-upload" hidden onchange="handleFileUpload(event)">
                 </div>
                 <div id="media-grid" class="media-grid">
                     <!-- Media items will be loaded here -->
                 </div>
             </section>
-            
+
             <section id="devices-page" class="page">
                 <div class="page-header">
                     <h3>Managed Devices</h3>
@@ -89,4 +97,5 @@
     </div>
     <script src="/static/script.js"></script>
 </body>
+
 </html>

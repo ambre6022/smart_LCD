@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadMedia();
     loadDevices();
-    
+
     // Navigation handling
     const navItems = document.querySelectorAll('nav li');
     const pages = document.querySelectorAll('.page');
@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const pageId = item.getAttribute('data-page');
-            
+
             navItems.forEach(i => i.classList.remove('active'));
             item.classList.add('active');
-            
+
             pages.forEach(p => p.classList.remove('active'));
             document.getElementById(`${pageId}-page`).classList.add('active');
-            
+
             pageTitle.textContent = item.textContent;
         });
     });
@@ -26,18 +26,18 @@ async function loadMedia() {
     try {
         const response = await fetch('/api/media');
         const media = await response.json();
-        
+
         document.getElementById('total-media').textContent = media.length;
-        
+
         const grid = document.getElementById('media-grid');
         grid.innerHTML = '';
-        
+
         media.forEach(item => {
             const card = document.createElement('div');
             card.className = 'media-card';
-            
+
             const icon = item.type === 'image' ? '🖼️' : '🎥';
-            
+
             card.innerHTML = `
                 <div class="media-preview">${icon}</div>
                 <div class="media-info">
@@ -47,7 +47,7 @@ async function loadMedia() {
             `;
             grid.appendChild(card);
         });
-        
+
     } catch (error) {
         console.error('Error loading media:', error);
     }
@@ -57,15 +57,18 @@ async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const duration = document.getElementById('media-duration').value;
+
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('duration', duration);
 
     try {
         const response = await fetch('/api/upload', {
             method: 'POST',
             body: formData
         });
-        
+
         if (response.ok) {
             alert('Upload successful!');
             loadMedia();
