@@ -13,6 +13,11 @@ class RaspberryMediaPlayer:
         self.videos_folder = os.path.join(media_folder, "videos")
         self.queue_file = os.path.join(media_folder, "queue", "media_queue.json")
         
+        # Ensure folders exist
+        os.makedirs(self.images_folder, exist_ok=True)
+        os.makedirs(self.videos_folder, exist_ok=True)
+        os.makedirs(os.path.join(media_folder, "queue"), exist_ok=True)
+        
         # Timing parameters
         self.display_time = {
             "image": 5,    # seconds
@@ -49,7 +54,7 @@ class RaspberryMediaPlayer:
                     # print("💓 Heartbeat sent")
                     pass
             except Exception as e:
-                # print(f"⚠️ Heartbeat failed: {e}")
+                print(f"⚠️ Heartbeat failed: {e}")
                 pass
             time.sleep(30)  # Every 30 seconds
             
@@ -59,14 +64,14 @@ class RaspberryMediaPlayer:
         while True:
             try:
                 # Sync Queue File
-                q_response = requests.get(f"{self.server_url}/api/queue", timeout=10)
+                q_response = requests.get(f"{self.server_url}/api/queue", timeout=5)
                 if q_response.status_code == 200:
                     with open(self.queue_file, 'wb') as f:
                         f.write(q_response.content)
                     # print("📋 Queue updated from server")
 
                 # Sync Media Files
-                response = requests.get(f"{self.server_url}/api/media", timeout=10)
+                response = requests.get(f"{self.server_url}/api/media", timeout=5)
                 if response.status_code == 200:
                     media_list = response.json()
                     for item in media_list:
@@ -86,9 +91,9 @@ class RaspberryMediaPlayer:
                             else:
                                 print(f"❌ Failed to download: {item['filename']} (Status: {r.status_code})")
             except Exception as e:
-                # print(f"⚠️ Sync failed: {e}")
+                print(f"⚠️ Sync failed: {e}")
                 pass
-            time.sleep(10)  # Check every 10 seconds for faster sync
+            time.sleep(5)  # Check every 5 seconds
     
     def init_pygame_raspberry(self):
         """Raspberry Pi साठी Pygame initialize करा"""
@@ -560,9 +565,7 @@ if __name__ == "__main__":
     config = load_config()
     
     # Get media folder path
-    media_folder = input(f"Media folder path [{config['media_folder']}]: ").strip()
-    if not media_folder:
-        media_folder = config['media_folder']
+    media_folder = "shared_media"
     
     # Update config
     config['media_folder'] = media_folder

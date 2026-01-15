@@ -16,5 +16,17 @@
     "path": "shared_media\\images\\pandas.jpg",
     "type": "image",
     "played": false
+  },
+  {
+    "name": "Media (1)67.jpg",
+    "path": "shared_media\\images\\Media (1)67.jpg",
+    "type": "image",
+    "played": false
+  },
+  {
+    "name": "pandas.jpg",
+    "path": "shared_media\\images\\pandas.jpg",
+    "type": "image",
+    "played": false
   }
 ]
