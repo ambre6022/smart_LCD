@@ -94,6 +94,57 @@ class RaspberryMediaPlayer:
                 print(f"⚠️ Sync failed: {e}")
                 pass
             time.sleep(5)  # Check every 5 seconds
+            
+    def setup_socketio(self):
+        """Live updates sathi SocketIO setup kara"""
+        import socketio
+        sio = socketio.Client()
+        
+        @sio.on('connect')
+        def on_connect():
+            print("⚡ Connected to Server for Live Updates")
+            
+        @sio.on('new_media')
+        def on_new_media(data):
+            print(f"🔔 Navin media sapdli: {data['filename']}")
+            # Trigger immediate sync
+            self.run_sync_once()
+            # Optional: Move to next media immediately to show new one
+            # pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
+            
+        try:
+            sio.connect(self.server_url)
+            sio.wait()
+        except Exception as e:
+            # print(f"⚠️ Socket connection failed: {e}")
+            pass
+
+    def run_sync_once(self):
+        """Ekda sync kara"""
+        import requests
+        try:
+            # Sync Queue
+            q_res = requests.get(f"{self.server_url}/api/queue", timeout=5)
+            if q_res.status_code == 200:
+                with open(self.queue_file, 'wb') as f:
+                    f.write(q_res.content)
+            
+            # Sync Media
+            res = requests.get(f"{self.server_url}/api/media", timeout=5)
+            if res.status_code == 200:
+                for item in res.json():
+                    folder = 'images' if item['type'] == 'image' else 'videos'
+                    local_path = os.path.join(self.media_folder, folder, item['filename'])
+                    if not os.path.exists(local_path):
+                        url = f"{self.server_url}/uploads/{folder}/{item['filename']}"
+                        r = requests.get(url, stream=True)
+                        if r.status_code == 200:
+                            with open(local_path, 'wb') as f:
+                                for chunk in r.iter_content(chunk_size=8192):
+                                    f.write(chunk)
+                        print(f"📥 Live Downloaded: {item['filename']}")
+        except:
+            pass
     
     def init_pygame_raspberry(self):
         """Raspberry Pi साठी Pygame initialize करा"""
@@ -416,6 +467,11 @@ class RaspberryMediaPlayer:
         sync_thread = threading.Thread(target=self.sync_media)
         sync_thread.daemon = True
         sync_thread.start()
+        
+        # Start socket thread for live updates
+        socket_thread = threading.Thread(target=self.setup_socketio)
+        socket_thread.daemon = True
+        socket_thread.start()
         
         running = True
         clock = pygame.time.Clock()

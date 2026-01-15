@@ -1,10 +1,13 @@
 import os
 import sqlite3
 from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask_socketio import SocketIO, emit
 from datetime import datetime
 import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, cors_allowed_origins="*")
 app.config['UPLOAD_FOLDER'] = 'shared_media'
 app.config['DATABASE'] = 'database.db'
 
@@ -99,6 +102,9 @@ def upload_file():
         # Update media queue for players (simple implementation)
         update_media_queue()
         
+        # Notify all connected players
+        socketio.emit('new_media', {"filename": filename})
+        
         return jsonify({"message": "File uploaded successfully", "filename": filename}), 201
 
 def update_media_queue():
@@ -110,9 +116,10 @@ def update_media_queue():
     queue = []
     for item in media_items:
         folder = 'images' if item['type'] == 'image' else 'videos'
+        # ALWAYS use forward slashes for the JSON path so Linux (Pi) can read it
         queue.append({
             "name": item['filename'],
-            "path": os.path.join(app.config['UPLOAD_FOLDER'], folder, item['filename']),
+            "path": f"{app.config['UPLOAD_FOLDER']}/{folder}/{item['filename']}",
             "type": item['type'],
             "played": False
         })
@@ -150,4 +157,4 @@ def get_queue():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

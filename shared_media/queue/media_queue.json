@@ -28,5 +28,11 @@
     "path": "shared_media\\images\\pandas.jpg",
     "type": "image",
     "played": false
+  },
+  {
+    "name": "do.png",
+    "path": "shared_media\\images\\do.png",
+    "type": "image",
+    "played": false
   }
 ]
